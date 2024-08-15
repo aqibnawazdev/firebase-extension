@@ -1,0 +1,49 @@
+name: rtdb-uppercase-messages
+version: 0.0.1
+specVersion: v1beta # Firebase Extensions specification version; don't change
+
+# Friendly display name for your extension (~3-5 words)
+displayName: Convert messages to upper case
+
+# Brief description of the task your extension performs (~1 sentence)
+description: >-
+  Converts messages in RTDB to upper case
+
+author:
+  authorName: Your Name
+  url: https://your-site.example.com
+
+license: Apache-2.0 # Required license
+
+# Public URL for the source code of your extension
+sourceUrl: https://github.com/your-name/your-repo
+
+params:
+  - param: MESSAGE_PATH
+    label: Message path
+    description: >-
+      What is the path at which the original text of a message can be found?
+    type: string
+    default: /messages/{pushId}/original
+    required: true
+    immutable: false
+
+resources:
+  - name: makeuppercase
+    type: firebaseextensions.v1beta.function
+    properties:
+      eventTrigger:
+        eventType: providers/google.firebase.database/eventTypes/ref.create
+        # DATABASE_INSTANCE (project's default instance) is an auto-populated
+        # parameter value. You can also specify an instance.
+        resource: projects/_/instances/${DATABASE_INSTANCE}/refs/${param:MESSAGE_PATH}
+      runtime: "nodejs18"
+roles:
+  - role: firebasedatabase.admin
+    reason: Allows the extension to write to RTDB.
+
+events:
+  - type: test-publisher.rtdb-uppercase-messages.v1.complete
+    description: >-
+      Occurs when message uppercasing completes. The event subject will contain
+      the RTDB URL of the uppercase message.
